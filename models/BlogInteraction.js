@@ -30,6 +30,6 @@ blogInteractionSchema.pre('save', function (next) {
     next();
 });
 
-const BlogInteraction = mongoose.model('BlogInteraction', blogInteractionSchema);
+const BlogInteraction = mongoose.models.BlogInteraction || mongoose.model('BlogInteraction', blogInteractionSchema);
 
 export default BlogInteraction;

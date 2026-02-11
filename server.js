@@ -22,15 +22,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/blog_database', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log('✅ MongoDB Connected Successfully'))
-    .catch((err) => {
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) return;
+    try {
+        const db = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/blog_database');
+        isConnected = db.connections[0].readyState;
+        console.log('✅ MongoDB Connected Successfully');
+    } catch (err) {
         console.error('❌ MongoDB Connection Error:', err);
-        process.exit(1);
-    });
+    }
+};
+
+// Middleware to ensure DB connection
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 // Routes
 app.use('/api/blog', blogRoutes);
@@ -59,7 +67,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
-});
+// Start server
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server is running on http://localhost:${PORT}`);
+        console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+    });
+}
+
+export default app;
