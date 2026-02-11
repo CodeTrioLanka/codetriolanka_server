@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import allowedOriginsList from './allowed_origins.json' assert { type: "json" };
+import allowedOriginsList from './allowed_origins.js';
 import dotenv from 'dotenv';
 import blogRoutes from './routes/blog.js';
 
