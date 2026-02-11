@@ -57,10 +57,16 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
-app.use('/api/blog', blogRoutes);
+app.use('/blog', blogRoutes);
+app.use('/api/blog', blogRoutes); // Keep /api/blog for backward compatibility
+
+// Root endpoint
+app.get('/', (req, res) => {
+    res.json({ message: 'API is running' });
+});
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({
         status: 'OK',
         message: 'Blog API Server is running',
@@ -70,6 +76,7 @@ app.get('/api/health', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.originalUrl}`);
     res.status(404).json({ message: 'Route not found' });
 });
 
