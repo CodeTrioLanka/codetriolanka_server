@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import allowedOriginsList from './allowed_origins.json' assert { type: "json" };
 import dotenv from 'dotenv';
 import blogRoutes from './routes/blog.js';
 
@@ -10,8 +11,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS Configuration
+const allowedOrigins = [
+    ...allowedOriginsList,
+    process.env.CLIENT_URL
+].filter(Boolean);
+
 const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('Blocked by CORS:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     optionsSuccessStatus: 200
 };
